@@ -1,0 +1,18 @@
+# Arquivos do sistema e editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Segredos e variáveis locais
+.env
+.env.*
+!.env.example
+
+# Logs e temporários
+*.log
+*.tmp
+
+# Cópias e pacotes de backup não fazem parte do código-fonte
+backup-antes-do-visual/
+*.zip

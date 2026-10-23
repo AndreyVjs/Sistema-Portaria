@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#17294f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Portaria" />
+  <meta name="description" content="Sistema de controle de autorizações e passagens da portaria do condomínio." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Portaria — Sistema do Condomínio</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Controle de Acesso</h1>
+    <p class="sub">Gestão de autorizações, validação de entrada e confirmação de passagem do condomínio.</p>
+  </header>
+
+  <main class="grid">
+
+    <!-- ================= CENTRAL: VISÃO GERAL ================= -->
+    <section class="card central-panel operational-panel" id="painel-central">
+      <div class="central-heading">
+        <div><span class="eyebrow">PAINEL DE CONTROLE</span><h2>Central de operações</h2><p class="dica">Visão consolidada do movimento e das atividades das portarias.</p></div>
+        <span class="central-live"><span></span> Protótipo</span>
+      </div>
+      <div class="dashboard-grid">
+        <article class="metric-card"><span class="metric-icon">◷</span><span class="metric-label">Chamados ativos</span><strong id="dash-ativos">—</strong><small>Autorizações abertas</small></article>
+        <article class="metric-card"><span class="metric-icon">⇢</span><span class="metric-label">Aguardando portaria 2</span><strong id="dash-grupo">—</strong><small>Chegadas pendentes</small></article>
+        <article class="metric-card"><span class="metric-icon">✓</span><span class="metric-label">Concluídos hoje</span><strong id="dash-concluidos">12</strong><small>Indicador demonstrativo</small></article>
+        <article class="metric-card"><span class="metric-icon">⌁</span><span class="metric-label">Tempo médio</span><strong>2 <small>min</small></strong><small>Dado fictício do protótipo</small></article>
+      </div>
+      <div class="central-lower">
+        <div class="central-list-wrap"><div class="section-title-row"><h3>Movimentações recentes</h3><span class="mini-label">Dados da sessão</span></div><div id="dash-recentes" class="recent-list"><p class="dica">Nenhuma movimentação registrada.</p></div></div>
+        <div class="central-shortcuts"><h3>Acesso rápido</h3>
+          <button class="shortcut-button" data-go="painel-morador"><span>＋</span><span><b>Nova autorização</b><small>Criar chamado de visitante</small></span><span class="shortcut-arrow">›</span></button>
+          <button class="shortcut-button" data-go="painel-portaria"><span>⌕</span><span><b>Validar entrada</b><small>Conferir código ou placa</small></span><span class="shortcut-arrow">›</span></button>
+          <button class="shortcut-button" data-go="painel-portaria2"><span>✓</span><span><b>Portaria do grupo</b><small>Registrar chegada</small></span><span class="shortcut-arrow">›</span></button>
+        </div>
+      </div>
+      
+    </section>
+
+    <!-- ================= PAINEL MORADOR ================= -->
+    <section class="card operational-panel" id="painel-morador">
+      <h2>Morador</h2>
+
+      <label>Apartamento
+        <input id="morador-ap" type="text" placeholder="Ex: 12B" />
+      </label>
+
+      <!-- NOVO: tipo do chamado -->
+      <label>Tipo do chamado
+        <select id="morador-tipo">
+          <option value="Entregador">Entregador</option>
+          <option value="Motorista">Motorista / Transporte por aplicativo</option>
+          <option value="Visita">Visita</option>
+          <option value="Prestador de serviço">Prestador de serviço</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </label>
+
+      <label>Placa do veículo (opcional)
+        <input id="morador-placa" type="text" placeholder="Ex: ABC1D23" />
+      </label>
+
+      <label>Nome da pessoa (opcional)
+        <input id="morador-nome" type="text" placeholder="Ex: João / iFood / Uber" />
+      </label>
+
+      <label>Validade (minutos)
+        <input id="morador-validade" type="number" value="60" min="5" />
+      </label>
+
+      <!-- NOVO: preferência de ligação na portaria do grupo -->
+      <label class="check">
+        <input id="morador-pref-ligacao" type="checkbox" />
+        Portaria do grupo deve <b>ligar para o apartamento</b> quando a pessoa passar pela portaria principal
+      </label>
+
+      <button id="btn-abrir-chamado">Abrir chamado e gerar código</button>
+
+      <div id="resultado-chamado" class="resultado escondido">
+        <p><strong>Chamado:</strong> <span id="res-id"></span></p>
+        <p><strong>Apartamento:</strong> <span id="res-ap" class="ap-tag"></span></p>
+        <p><strong>Tipo:</strong> <span id="res-tipo"></span></p>
+        <p><strong>Código:</strong> <span id="res-codigo" class="codigo"></span></p>
+        <p><strong>QR Code demonstrativo</strong></p>
+        <div id="res-qr-visual" class="qr-demo" role="img" aria-label="QR Code ilustrativo, não escaneável"></div>
+        <p class="qr-caption">Ilustração para o protótipo — não pode ser escaneada.</p>
+        <p class="dica">Informe o código numérico à portaria para validação.</p>
+        <button id="btn-compartilhar" class="share-button" type="button">↗ Compartilhar autorização</button>
+        <p id="share-feedback" class="share-feedback escondido" aria-live="polite"></p>
+      </div>
+
+      <div id="notificacao-morador" class="notificacao escondido" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- ================= PAINEL PORTARIA 1 (PRINCIPAL) ================= -->
+    <section class="card operational-panel" id="painel-portaria">
+      <h2>Portaria 1 (principal)</h2>
+
+      <label>Buscar por placa
+        <input id="portaria-placa" type="text" placeholder="Ex: ABC1D23" />
+      </label>
+
+      <label>Ou digitar código do chamado
+        <input id="portaria-codigo" type="text" placeholder="Ex: 123456" />
+      </label>
+
+      <div class="botoes">
+        <button id="btn-buscar-placa">Buscar placa</button>
+        <button id="btn-validar-codigo">Validar código</button>
+      </div>
+
+      <div id="resultado-validacao" class="resultado escondido"></div>
+      <div id="aviso-portaria1" class="aviso-temporario escondido" role="status" aria-live="polite"></div>
+
+      <div id="area-fechar" class="escondido">
+        <button id="btn-fechar-chamado" class="secundario">Confirmar passagem pela portaria principal</button>
+      </div>
+
+      <div class="fallback">
+        <p><strong>Fallback:</strong> morador não abriu chamado?</p>
+        <button id="btn-ligar-morador" class="secundario">Ligar para o morador (fluxo atual)</button>
+      </div>
+    </section>
+
+    <!-- ================= NOVO: PAINEL PORTARIA DO GRUPO ================= -->
+    <section class="card operational-panel" id="painel-portaria2">
+      <h2>Portaria do Grupo (portaria 2)</h2>
+      <p class="dica">Pessoas liberadas na portaria principal que ainda precisam chegar à portaria do grupo.</p>
+      <ul id="lista-portaria2"></ul>
+      <p id="vazio-p2" class="dica">Nenhum chamado aguardando.</p>
+      <div id="aviso-portaria2" class="resultado escondido" aria-live="polite"></div>
+    </section>
+
+    <!-- ================= PAINEL CHAMADOS ================= -->
+    <section class="card operational-panel" id="painel-chamados">
+      <h2>Chamados ativos (portaria 1)</h2>
+      <p class="dica">Autorizações ainda válidas na portaria principal.</p>
+      <ul id="lista-chamados"></ul>
+      <p id="vazio" class="dica">Nenhum chamado ativo.</p>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegação das áreas">
+    <a class="nav-item" href="#painel-morador" data-target="painel-morador"><span class="nav-badge" id="badge-morador" aria-label="Notificações do morador"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Morador</span></a>
+    <a class="nav-item" href="#painel-portaria" data-target="painel-portaria"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V3h16v18M8 7h8M8 11h8M8 15h5M2 21h20"/></svg><span>Portaria 1</span></a>
+    <a class="nav-item nav-central ativo" href="#painel-central" data-target="painel-central" aria-current="page"><span class="central-nav-symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span>Central</span></a>
+    <a class="nav-item" href="#painel-portaria2" data-target="painel-portaria2"><span class="nav-badge" id="badge-portaria2" aria-label="Chegadas pendentes"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg><span>Portaria 2</span></a>
+    <a class="nav-item" href="#painel-chamados" data-target="painel-chamados"><span class="nav-badge" id="badge-chamados" aria-label="Chamados ativos"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H5a2 2 0 0 0-2 2v14h18V6a2 2 0 0 0-2-2h-3"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M7 11h10M7 15h10"/></svg><span>Chamados</span></a>
+  </nav>
+
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch((error) => console.warn("Cache offline indisponível:", error)));
+    }
+  </script>
+</body>
+</html>
